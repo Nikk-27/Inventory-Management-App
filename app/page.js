@@ -37,7 +37,6 @@ const buttonStyles = {
   },
 }
 
-
 export default function Home() {
   const [inventory, setInventory] = useState([])
   const [open, setOpen] = useState(false)
@@ -46,6 +45,7 @@ export default function Home() {
   const [currentItem, setCurrentItem] = useState(null)
   const [newName, setNewName] = useState('')
   const [newQuantity, setNewQuantity] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
 
   const subscribeToInventory = () => {
     const unsubscribe = onSnapshot(collection(firestore, 'pantry'), (snapshot) => {
@@ -131,7 +131,11 @@ export default function Home() {
     setNewQuantity('')
     handleUpdateClose()
   }
-  
+
+  const filteredInventory = inventory.filter(({ name }) =>
+    name.toLowerCase().includes(searchQuery.toLowerCase())
+  )
+
   return (
     <Box
       width="100vw"
@@ -217,6 +221,20 @@ export default function Home() {
       <Button sx={buttonStyles} onClick={handleOpen}>
         Add New Item
       </Button>
+      
+      <TextField
+        id="search-input"
+        label="Search Items"
+        variant="outlined"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{ 
+          marginBottom: 2,
+          backgroundColor: 'white',  // Set background color to white
+          width: '800px'
+        }}
+      />
+
       <Box border={'1px solid #333'}>
         <Box
           width="800px"
@@ -231,7 +249,7 @@ export default function Home() {
           </Typography>
         </Box>
         <Stack width="800px" height="300px" spacing={2} overflow={'auto'}>
-          {inventory.map(({name, quantity}) => (
+          {filteredInventory.map(({ name, quantity }) => (
             <Box
               key={name}
               width="100%"
